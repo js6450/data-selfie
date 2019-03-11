@@ -1,0 +1,15 @@
+#hidden{
+     display: none;
+}
+
+video{
+    width: 280px !important;
+    margin-left: -45px;
+}
+
+.pa2{
+    padding: 0;
+    width: 200px;
+    height: 200px;
+    overflow: hidden;
+}

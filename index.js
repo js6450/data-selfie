@@ -6,13 +6,15 @@ const port = process.env.PORT || 3030;
 const Datastore = require('nedb');
 const pathToData = path.resolve(__dirname, "db/db")
 const db = new Datastore({ filename: pathToData});
+const weather = require('weather-js');
+
 db.loadDatabase();
 
-const app = express()
+const app = express();
 
 
 // add logging middleware
-app.use(logger("dev"))
+app.use(logger("dev"));
 
 // Handling JSON data 
 app.use(express.json({limit: '5mb'}));
@@ -35,11 +37,11 @@ app.get("/logs", (req, res) => {
 // Show all my submissions
 // our API
 // GET - /api
-app.get("/api", (req, res) => {    
-    db.find({}, function (err, docs) {
+app.get("/api", (req, res) => {
+    db.find({}).sort({created: -1}).exec(function (err, docs) {
         if(err){
             return err;
-        } 
+        }
         res.json(docs);
     });
 });
@@ -65,7 +67,26 @@ app.post("/api", (req, res) => {
         }
         res.json(docs);
     });
-})
+});
+
+
+// Show submission page
+app.get("/weather/:lat/:lng", (req, res) => {
+    let latlng = `${req.params.lat},${req.params.lng}`
+
+    let searchOptions = {
+        search: latlng,
+        degreeType: 'C'
+    };
+
+    weather.find(searchOptions, function(err, result) {
+        if(err) console.log(err);
+        console.log(JSON.stringify(result, null, 2));
+        // we get back an array, so we only send the first value
+        res.send(result[0]);
+    });
+
+});
 
 
 // use the http module to create an http server listening on the specified port
